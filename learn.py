@@ -116,16 +116,16 @@ val_history = history_callback.history["val_acc"]
 
 # Saving loss history
 numpy_loss_history = np.array(loss_history)
-np.savetxt("history/clearSides_v8-{epoch:02d}-{val_acc:.2f}_loss_history.txt", numpy_loss_history, delimiter=",")
+np.savetxt("clearSides_v8-{epoch:02d}-{val_acc:.2f}_loss_history.txt", numpy_loss_history, delimiter=",")
 numpy_val_history = np.array(val_history)
-np.savetxt("history/clearSides_v8-{epoch:02d}-{val_acc:.2f}_val_history.txt", numpy_val_history, delimiter=",")
+np.savetxt("clearSides_v8-{epoch:02d}-{val_acc:.2f}_val_history.txt", numpy_val_history, delimiter=",")
 
 # Serialize model to JSON
 model_json = model.to_json()
-with open("model/model_learn_v8.json", "w") as json_file:
+with open("model_learn_v8.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model/model_learn_v8.h5")
+model.save_weights("model_learn_v8.h5")
 print("Saved model to disk")
 
 # Plot the training loss and accuracy
@@ -140,4 +140,4 @@ plt.title("Training Loss and Accuracy on Tr")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
-plt.savefig("plot/plot")
+plt.savefig("plot")

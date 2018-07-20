@@ -16,13 +16,13 @@ import matplotlib.patches as patches
 from PIL.Image import BICUBIC
 
 # Load json and create model
-json_file = open('model/model_learn.json', 'r')
+json_file = open('model_learn.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 
 # Load weights into new model
-loaded_model.load_weights("model/model_learn.h5")
+loaded_model.load_weights("model_learn.h5")
 print("Loaded model from disk")
 
 # Evaluate loaded model on test data
@@ -31,7 +31,7 @@ loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['
 #print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
 
 
-for img_no in range(1, 2):
+for img_no in range(1, 6):
     img_no = str(img_no)
     test_image = image.load_img('Images_from_video/out' + img_no + '.png')
     #test_image = image.load_img('\dataset\learning_set\out' + img_no + '.jpg')
