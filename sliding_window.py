@@ -14,31 +14,22 @@ from keras.models import model_from_json
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 from PIL.Image import BICUBIC
+from keras.models import load_model
 
-# Load json and create model
-json_file = open('model_learn.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-loaded_model = model_from_json(loaded_model_json)
 
-# Load weights into new model
-loaded_model.load_weights("model_learn.h5")
+# # Load weights into new model
+model = load_model("checkpoints/model3-045.h5")
 print("Loaded model from disk")
-
-# Evaluate loaded model on test data
-loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-#score = loaded_model.evaluate(test_set, verbose=0)
-#print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
 
 
 for img_no in range(1, 6):
     img_no = str(img_no)
     test_image = image.load_img('Images_from_video/out' + img_no + '.png')
-    #test_image = image.load_img('\dataset\learning_set\out' + img_no + '.jpg')
+    #test_image =  image.load_img('\dataset\learning_set\out' + img_no + '.jpg')
     x, y = test_image.size
 
     test_image = test_image.resize((round(x/3), round(y/3)), resample = BICUBIC)
-
+    cv_image = np.array(test_image, dtype="float")
     # Create figure and axes
     fig,ax = plt.subplots(1)
 
@@ -49,48 +40,48 @@ for img_no in range(1, 6):
     prozorec1 = 64
     prozorec2 = 120
     prozorec3 = 150
-    
 
-    #for i in range(0, x - prozorec3, 15):
-        #for j in range(y//3, y - prozorec3, 15):
     for i in range(0, x - prozorec3, 15):
-        for j in range(0, y - prozorec3, 15):   
-        
+        for j in range(0, y - prozorec3, 15):
+
             img1 = test_image.crop((i, j, i + prozorec1, j + prozorec1))
             img1 = img1.resize((32, 32), resample=BICUBIC)
             img1 = np.expand_dims(img1, axis = 0)
-            result1 = loaded_model.predict(img1)
+            img1 = np.array(img1, dtype="float") / 255.0 # napraj go ednas ova pogore a ne sto pati dole
 
+            result1 = model.predict(img1)
             img2 = test_image.crop((i, j, i + prozorec2, j + prozorec2))
             img2 = img2.resize((32, 32), resample=BICUBIC)
             img2 = np.expand_dims(img2, axis = 0)
-            result2 = loaded_model.predict(img2)
+            img2 = np.array(img2, dtype="float") / 255.0 # napraj go ednas ova pogore a ne sto pati dole
+            result2 = model.predict(img2)
 
             img3 = test_image.crop((i, j, i + prozorec3, j + prozorec3))
             img3 = img3.resize((32, 32), resample=BICUBIC)
             img3 = np.expand_dims(img3, axis = 0)
-            result3 = loaded_model.predict(img3)
+            img3 = np.array(img3, dtype="float") / 255.0 # napraj go ednas ova pogore a ne sto pati dole
 
-            #training_set.class_indices
-            if result1[0][0] == 0:
-                # Create a Rectangle patch
+            result3 = model.predict(img3)
+
+            argmax = np.argmax(result1[0])
+            if argmax==0 and result3[0][argmax] > 0.95:
                 rect = patches.Rectangle((i,j), prozorec1, prozorec1,linewidth=1,edgecolor='r',facecolor='none')
                 ax.add_patch(rect)
 
-            if result2[0][0] == 0:
-                # Create a Rectangle patch
+            argmax = np.argmax(result2[0])
+            if argmax==0 and result2[0][argmax] > 0.95:
                 rect = patches.Rectangle((i,j), prozorec2, prozorec2,linewidth=1,edgecolor='g',facecolor='none')
                 ax.add_patch(rect)
 
-            if result3[0][0] == 0:
-                # Create a Rectangle patch
+
+            argmax = np.argmax(result3[0])
+            if argmax==0 and result3[0][argmax]>0.95:
                 rect = patches.Rectangle((i,j), prozorec3, prozorec3,linewidth=1,edgecolor='b',facecolor='none')
                 ax.add_patch(rect)
-            
+
 
 
     plt.axis("off")
-    
     fig.savefig('result_images/img' + img_no + '.png')
-    
+
 print("FINISHED")

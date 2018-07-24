@@ -31,37 +31,47 @@ input_shape = (img_width, img_height, 3)
 page_dir_path  = 'dataset'
 filepath="saved_weights/weights-improvement-v-{epoch:02d}-{val_acc:.2f}.hdf5"
 
-#The model
 model = Sequential()
 
-model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='relu', W_constraint=max_norm(3)))
+model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='elu', W_constraint=max_norm(3)))
 model.add(BatchNormalization())
 model.add(Dropout(0.2))
-model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='relu', W_constraint=max_norm(3)))
+model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='elu', W_constraint=max_norm(3)))
 model.add(BatchNormalization())
 
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Conv2D(64, (3, 3), activation='relu', W_constraint=max_norm(3)))
+model.add(Conv2D(64, (3, 3), activation='elu', W_constraint=max_norm(3)))
 model.add(BatchNormalization())
 model.add(Dropout(0.2))
-model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='relu', W_constraint=max_norm(3)))
+model.add(Conv2D(64, (3, 3), input_shape=input_shape, activation='elu', W_constraint=max_norm(3)))
 model.add(BatchNormalization())
 
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Flatten())
-model.add(Dense(32, activation='relu', W_constraint=max_norm(3)))
+model.add(Dense(32, activation='elu', W_constraint=max_norm(3)))
 model.add(BatchNormalization())
 
 model.add(Dropout(0.5))
-model.add(Dense(1, activation='softmax'))
+model.add(Dense(2, activation='softmax'))
 
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+#Get model training checkpoints
+
+
+
+checkpoint = ModelCheckpoint('checkpoints/model3-{epoch:03d}.h5',
+                                 monitor='val_loss',
+                                 verbose=2,
+                                 save_best_only=False,
+                                 mode='auto')
 
 
 # Checkpoint
-checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+#checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 callbacks_list = [checkpoint]
 
 # Load images
@@ -76,12 +86,12 @@ random.shuffle(imagePaths)
 for imagePath in imagePaths:
     image = cv2.imread(imagePath)
     #image = cv2.resize(image, (32, 32))
-    image = noisy("s&p", image)
+    #image = noisy("s&p", image)
     image = img_to_array(image)
     data.append(image)
     
     label = imagePath.split(os.path.sep)[-2]
-    label = 1 if label == "Tr" else 0
+    label = [1,0] if label == "Tr" else [0,1]
     labels.append(label)
     
 
